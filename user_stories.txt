@@ -1,3 +1,4 @@
-As a user, I wish I could adjust the price I sell my lemonade in the middle of the day to maximize profits.
-As a user, I wish there was a sound effect for each transaction so I know when someone buys my lemonade.
-As a user, I wish I knew how many people saw my advertisement to maximize profits.
+As a user, I wish I could choose the price I sell my lemonade to maximize profits.
+As a user, I wish I could adjust how many advertisement signs I used to maximize profits.
+As a user, I wish I knew what the weather was today before choosing prices.
+As a user, I want to know how much it costs to make a glass of lemonade and how much lemonade to make for a day.
