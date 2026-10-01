@@ -90,11 +90,13 @@ export class LemonadeStand {
   }
 
 
-  //ice melts at the end of the day, returns how much was lost
-  endDay(): number {
-    const melted = this.ice;
+  //at the end of the day leftover ice melts and unsold lemonade is thrown out
+  //returns how much of each was lost
+  endDay(): { iceMelted: number; lemonadeWasted: number } {
+    const lost = { iceMelted: this.ice, lemonadeWasted: this.lemonade };
     this.ice = 0;
-    return melted;
+    this.lemonade = 0;
+    return lost;
   }
 
 
