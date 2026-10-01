@@ -2,6 +2,7 @@
   "compilerOptions": {
     "moduleDetection": "force",
     "module": "Preserve",
+    "types": ["node"],
     "resolveJsonModule": true,
     "allowJs": true,
     "esModuleInterop": true,

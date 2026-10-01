@@ -1,4 +1,4 @@
 As a user, I wish I could choose the price I sell my lemonade to maximize profits.
 As a user, I wish I could adjust how many advertisement signs I used to maximize profits.
 As a user, I wish I knew what the weather was today before choosing prices.
-As a user, I want to know how much it costs to make a glass of lemonade and how much lemonade to make for a day.
+As a user, I want to know how much it costs to make a glass of lemonade and how much lemonade to make for a day.    
