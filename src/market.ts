@@ -1,28 +1,31 @@
-import type { Supplies } from "./lemonadeStand";
+import type { Supplies } from "./inventory";
 
 //HOW THE MARKET AND buySupplies WORK TOGETHER
 //
-//Market and LemonadeStand are two separate classes with separate jobs:
+//Market, Inventory and LemonadeStand are separate classes with separate jobs:
 //  - Market knows what supplies cost today. It knows nothing about the stand.
-//  - LemonadeStand knows its own money and supplies. It does not know how
+//  - Inventory knows how many supplies there are and how to buy more.
+//  - LemonadeStand owns an Inventory and the money. It does not know how
 //    prices are decided.
 //
 //They meet in LemonadeStand.buySupplies(market, order). The market object is
-//passed in as a parameter, and buySupplies calls market.getPrices() to find
-//out what to charge. The stand then does the rest itself: adds up the cost,
-//checks it can afford it, takes the money out and adds the supplies.
+//passed in as a parameter and the stand hands it on to
+//Inventory.buySupplies(market, order, money). The inventory calls
+//market.getPrices() to find out what to charge, adds up the cost, checks it
+//is not more than the money, and adds the supplies. It returns the cost and
+//the stand takes that much out of its money.
 //
 //  const market = new Market();
 //  const stand = new LemonadeStand();
 //  market.newDay();                                     //set today's prices
 //  stand.buySupplies(market, { cups: 10, ice: 30, lemons: 10, sugar: 10 });
 //
-//lemonadeStand.ts never imports this file. Instead it declares an interface
+//inventory.ts never imports this file. Instead it declares an interface
 //that only says "a market is anything with a getPrices() method that returns
 //Supplies". TypeScript checks types by shape, not by name, so this class is
 //accepted by buySupplies just because it has a matching getPrices() method.
-//That means the stand only depends on that one method, and the way prices
-//are picked in here can change without touching lemonadeStand.ts.
+//That means the inventory only depends on that one method, and the way prices
+//are picked in here can change without touching inventory.ts.
 
 //normal price of each supply in dollars
 const BASE_PRICES: Supplies = { cups: 0.05, ice: 0.02, lemons: 0.25, sugar: 0.1 };

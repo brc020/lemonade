@@ -1,22 +1,8 @@
-//amount of each supply, used for prices, orders and the recipe
-export type Supplies = {
-  cups: number;
-  ice: number;
-  lemons: number;
-  sugar: number;
-};
-
-//anything that can give today's supply prices (the market)
-export interface Market {
-  getPrices(): Supplies;
-}
+import { Inventory, Market, Supplies } from "./inventory";
 
 export class LemonadeStand {
   money: number;
-  cups: number;
-  ice: number;
-  lemons: number;
-  sugar: number;
+  inventory: Inventory;
   lemonade: number;
   price: number;
   recipe: Supplies;
@@ -25,53 +11,32 @@ export class LemonadeStand {
   //constructor for lemonadestand game START
   constructor() {
     this.money = 20;
-    this.cups = 0;
-    this.ice = 0;
-    this.lemons = 0;
-    this.sugar = 0;
+    this.inventory = new Inventory();
     this.lemonade = 0;
     this.price = 1;
     this.recipe = { cups: 1, ice: 3, lemons: 1, sugar: 1 };
   }
 
 
-  //buy supplies at the start of the day using the market's prices
+  //buy supplies at the start of the day, the inventory does the buying
+  //and the stand pays for it
   //returns false and buys nothing if the stand can't afford the order
   buySupplies(market: Market, order: Supplies): boolean {
-    const prices = market.getPrices();
-    const cost =
-      order.cups * prices.cups +
-      order.ice * prices.ice +
-      order.lemons * prices.lemons +
-      order.sugar * prices.sugar;
-
-    if (cost > this.money) {
+    const cost = this.inventory.buySupplies(market, order, this.money);
+    if (cost < 0) {
       return false;
     }
 
     this.money = this.roundToCents(this.money - cost);
-    this.cups += order.cups;
-    this.ice += order.ice;
-    this.lemons += order.lemons;
-    this.sugar += order.sugar;
     return true;
   }
 
 
-  //turn as many ingredients as possible into cups of lemonade for the day
+  //at the start of the day have the inventory turn as many ingredients as
+  //possible into cups of lemonade
   //returns how many cups of lemonade were made
   makeLemonade(): number {
-    const made = Math.min(
-      Math.floor(this.cups / this.recipe.cups),
-      Math.floor(this.ice / this.recipe.ice),
-      Math.floor(this.lemons / this.recipe.lemons),
-      Math.floor(this.sugar / this.recipe.sugar)
-    );
-
-    this.cups -= made * this.recipe.cups;
-    this.ice -= made * this.recipe.ice;
-    this.lemons -= made * this.recipe.lemons;
-    this.sugar -= made * this.recipe.sugar;
+    const made = this.inventory.makeLemonade(this.recipe);
     this.lemonade += made;
     return made;
   }
@@ -93,8 +58,7 @@ export class LemonadeStand {
   //at the end of the day leftover ice melts and unsold lemonade is thrown out
   //returns how much of each was lost
   endDay(): { iceMelted: number; lemonadeWasted: number } {
-    const lost = { iceMelted: this.ice, lemonadeWasted: this.lemonade };
-    this.ice = 0;
+    const lost = { iceMelted: this.inventory.meltIce(), lemonadeWasted: this.lemonade };
     this.lemonade = 0;
     return lost;
   }

@@ -1,35 +1,84 @@
-export const SUPPLIES = ["cups", "ice", "lemons", "sugar"] as const;
-export type Supply = (typeof SUPPLIES)[number];
+//amount of each supply, used for prices, orders and the recipe
+export type Supplies = {
+  cups: number;
+  ice: number;
+  lemons: number;
+  sugar: number;
+};
 
-/** An amount of each supply. Used for stock levels, recipes and prices. */
-export type SupplyAmounts = Record<Supply, number>;
+//anything that can give today's supply prices (the market)
+export interface Market {
+  getPrices(): Supplies;
+}
 
+//the supplies the stand owns, handles buying them and using them up
 export class Inventory {
-  private stock: SupplyAmounts = { cups: 0, ice: 0, lemons: 0, sugar: 0 };
+  cups: number;
+  ice: number;
+  lemons: number;
+  sugar: number;
 
-  count(supply: Supply): number {
-    return this.stock[supply];
+
+  //the inventory starts out empty
+  constructor() {
+    this.cups = 0;
+    this.ice = 0;
+    this.lemons = 0;
+    this.sugar = 0;
   }
 
-  add(supply: Supply, quantity: number): void {
-    if (!Number.isInteger(quantity) || quantity < 0) {
-      throw new Error(`Cannot add ${quantity} ${supply}`);
+
+  //buy supplies using the market's prices and add them to the inventory
+  //money is how much the buyer has to spend
+  //returns what the order cost, or -1 and buys nothing if it costs too much
+  buySupplies(market: Market, order: Supplies, money: number): number {
+    const prices = market.getPrices();
+    const cost = this.roundToCents(
+      order.cups * prices.cups +
+      order.ice * prices.ice +
+      order.lemons * prices.lemons +
+      order.sugar * prices.sugar
+    );
+
+    if (cost > money) {
+      return -1;
     }
-    this.stock[supply] += quantity;
+
+    this.cups += order.cups;
+    this.ice += order.ice;
+    this.lemons += order.lemons;
+    this.sugar += order.sugar;
+    return cost;
   }
 
-  remove(supply: Supply, quantity: number): void {
-    if (!Number.isInteger(quantity) || quantity < 0 || quantity > this.stock[supply]) {
-      throw new Error(`Cannot remove ${quantity} ${supply} (have ${this.stock[supply]})`);
-    }
-    this.stock[supply] -= quantity;
+
+  //use up ingredients to make as many cups of lemonade as the recipe allows
+  //returns how many cups of lemonade were made
+  makeLemonade(recipe: Supplies): number {
+    const made = Math.min(
+      Math.floor(this.cups / recipe.cups),
+      Math.floor(this.ice / recipe.ice),
+      Math.floor(this.lemons / recipe.lemons),
+      Math.floor(this.sugar / recipe.sugar)
+    );
+
+    this.cups -= made * recipe.cups;
+    this.ice -= made * recipe.ice;
+    this.lemons -= made * recipe.lemons;
+    this.sugar -= made * recipe.sugar;
+    return made;
   }
 
-  clear(supply: Supply): void {
-    this.stock[supply] = 0;
+
+  //all the ice melts, returns how much was lost
+  meltIce(): number {
+    const melted = this.ice;
+    this.ice = 0;
+    return melted;
   }
 
-  snapshot(): SupplyAmounts {
-    return { ...this.stock };
+
+  private roundToCents(amount: number): number {
+    return Math.round(amount * 100) / 100;
   }
 }
